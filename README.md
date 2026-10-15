@@ -2092,7 +2092,7 @@ flowchart LR
 12. 设置应用软件安全。
 13. 安装第三方防护软件。
 
-## Windows 信息安全相关命令速查
+**Windows 信息安全相关命令速查**
 
 | 命令 | 对应功能 | 记忆点 |
 |------|----------|--------|
@@ -2133,8 +2133,6 @@ flowchart LR
 
 ---
 
-### 🌐 网络连接与端口排查
-
 > 🧠 **口诀**：`netstat` 看连接，`findstr` 筛可疑，`PID` 找进程
 
 | 🔧 命令 | 📖 说明 | 💡 示例 |
@@ -2153,9 +2151,7 @@ flowchart LR
     :: 根据 PID 找进程名
     tasklist /FI "PID eq 1234"
 
----
-
-### 👤 账号与权限审计
+#### 👤 账号与权限审计
 
 > 🧠 **口诀**：`net user` 查账号，`localgroup` 看权限，`whoami` 验身份
 
@@ -2179,9 +2175,7 @@ flowchart LR
     :: 查看隐藏账号（$ 结尾）
     wmic useraccount get name,disabled,lockout,passwordrequired
 
----
-
-### 📜 日志与事件审计
+#### 📜 日志与事件审计
 
 > 🧠 **口诀**：`wevtutil` 查日志，`Get-WinEvent` 更强大，事件 ID 要记牢
 
@@ -2208,9 +2202,7 @@ flowchart LR
 | 7045 | 安装新服务（重点） |
 | 5156 | WFP 允许连接 |
 
----
-
-### 📂 共享与 SMB 安全
+#### 📂 共享与 SMB 安全
 
 > 🧠 **口诀**：`net share` 看共享，SMBv1 必须关，永恒之蓝不再来
 
@@ -2221,9 +2213,7 @@ flowchart LR
 | `net session` | 当前会话 | `net session` |
 | `net use` | 已映射连接 | `net use` |
 
----
-
-### 🔑 凭据与密码安全
+#### 🔑 凭据与密码安全
 
 > 🧠 **口诀**：`cmdkey` 查凭据，`net accounts` 管策略，防爆破要锁定
 
@@ -2233,9 +2223,7 @@ flowchart LR
 | `cmdkey /delete:目标` | 删除凭据 | `cmdkey /delete:192.168.1.1` |
 | `net accounts` | 密码策略 | `net accounts` |
 
----
-
-### #️⃣ 哈希与文件校验
+#### #️⃣ 哈希与文件校验
 
 > 🧠 **口诀**：`certutil` 算哈希，`Get-FileHash` 更现代，签名验证靠 `sigcheck`
 
@@ -2247,9 +2235,7 @@ flowchart LR
 | `sigcheck -a 文件` | 签名验证（Sysinternals） | 查数字签名 |
 | `Get-AuthenticodeSignature` | 签名验证 | `Get-AuthenticodeSignature .\a.exe` |
 
----
-
-### ⚡ 速查 Top 20
+#### ⚡ 速查 Top 20
 
 > 🧠 **口诀**：连、进、服、账、权、日、防、共、凭、任、启、哈
 
@@ -2274,9 +2260,7 @@ flowchart LR
     certutil -hashfile 文件 SHA256   文件哈希
     Get-FileHash 文件                文件哈希
 
----
-
-### ✅ 加固清单
+#### ✅ 加固清单
 
 > 🧠 **口诀**：防火墙开、SMB 关、共享删、Guest 禁、密码强、审核启、补丁打、端口封
 
@@ -2292,52 +2276,6 @@ flowchart LR
 - [ ] 🔒 关闭高危端口入站（445/135/139/3389）
 - [ ] 📝 开启 PowerShell 日志（ScriptBlock Logging）
 - [ ] 🔍 定期检查计划任务与启动项
-
----
-
-### 19.3 UNIX/Linux 操作系统安全
-
-**审计机制** ⭐ 【常考】
-
-- 日志目录：早期 UNIX 放在 `/usr/adm`；较新版本在 `/var/adm`；Solaris、Linux 和 BSD 在 `/var/log`。
-
-| 日志文件 | 内容 |
-|----------|------|
-| `lastlog` | 记录用户最近成功登录的时间 |
-| `loginlog` | 不良的登录尝试记录 |
-| `messages` | 记录输出到系统主控台及由 syslog 系统服务程序产生的消息 |
-| `utmp` | 记录当前登录的每个用户 |
-| `wtmp` | 记录每一次用户登录和注销的历史信息 |
-| `vold.log` | 记录使用外部介质出现的错误 |
-| `sulog` | 记录 SU 命令的使用情况 |
-| `acct` | 记录每个用户使用过的命令 |
-
-**系统安全增强技术** 💧 【有时考】
-
-1. 安装系统补丁软件包。
-2. 最小化系统网络服务：`inetd.conf` 文件权限设置为 `600`、属主为 `root`；`services` 文件权限设置为 `644`、属主为 `root`；在 `inetd.conf` 中注销不必要的服务（`finger`、`echo`、`chargen`、`rsh`、`rlogin`、`tftp`）；只开放与系统业务运行有关的网络通信端口。
-3. 设置系统开机保护口令。
-4. 弱口令检查。
-5. 禁用默认账号。
-6. 用 `SSH` 增强网络服务安全。
-7. 利用 `TCP Wrappers` 增强访问控制。
-8. 构筑 UNIX/Linux 主机防火墙。
-9. 使用 `Tripwire` 或 `MD5Sum` 完整性检测工具。
-10. 检测 `LKM` 后门。
-11. 系统安全监测。
-
-**常见典型安全工具** 📘 【了解】
-
-| 用途 | 工具 |
-|------|------|
-| 远程安全登录管理 | `OpenSSH` |
-| 系统身份认证增强 | `Kerberos` |
-| 系统访问控制增强 | `SELinux`、`iptables`、`TCP Wrappers` |
-| 恶意代码查杀 | `ClamAV`、`Chkrootkit`、`Rootkit Hunter` |
-| 系统安全检查 | `Nmap`、`John the Ripper`、`OpenVAS` |
-| 系统安全监测 | `lsof`、`Netstat`、`Snort` |
-
----
 
 <a name="二十数据库系统安全"></a>
 
