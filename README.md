@@ -2790,6 +2790,8 @@ flowchart TD
 | 2 | 数据链路层 | 帧（Frame） | 物理寻址、差错检测 | MPLS、HDLC、SDLC、PPP、PPPOE、L2F、L2TP、PPTP、LACP(802.3ad)、ISL、ARP、RARP、ATM、IEEE 802.1 / 802.11 / 802.3 |
 | 1 | 物理层 | 比特（Bit） | 传输原始比特流 | 专线 E1/E3、T1/T3、PSTN、ISDN、X.25、宽带 Ether、ADSL、EPON、SDH、RPR、MSTP、GPRS、3G、4G、IEEE 802.11b/g/n/a/ac、IEEE 802.3ab/ae/an/ba、IEEE 802.3z/u、IEEE 802.15、IEEE 802.16 |
 
+<img width="1008" height="1344" alt="常用网络协议神图" src="https://github.com/user-attachments/assets/a45b0fac-640a-4122-9f01-60487d24bb8b" />
+
 ---
 
 <a name="附录-b复习清单"></a>
