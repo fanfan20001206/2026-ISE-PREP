@@ -2792,6 +2792,9 @@ flowchart TD
 
 <img width="1008" height="1344" alt="常用网络协议神图" src="https://github.com/user-attachments/assets/a45b0fac-640a-4122-9f01-60487d24bb8b" />
 
+### A.6 ASCII对照表
+<img width="1796" height="2192" alt="ASCII表" src="https://github.com/user-attachments/assets/6ce92a3d-af80-4209-91a0-4ee7786b47ea" />
+
 ---
 
 <a name="附录-b复习清单"></a>
