@@ -123,6 +123,11 @@ iptables -t filter -P FORWARD -j DROP
 iptables -t filter -A INPUT -p tcp -s 192.168.0.2 --dport 22 -j REJECT
 # 允许IP为10.0.0.2的地址访问本机的22端口
 iptables -t filter -A INPUT -p tcp -s 10.0.0.2 --dport 22 -j ACCEPT
+# 运维规则
+iptables -t filter -A FORWARD -p tcp -s 192.168.11.2 -d 192.168.70.0/24 --dport 22 -j ACCEPT
+# 服务器允许互联网访问
+iptables -t filter -A FORWARD -p tcp --dport 80,443 -j ACCEPT  // 允许外部访问80,443
+iptables -t filter -A FORWARD -p tcp --sport 80,443 -j ACCEPT //放行返回流量
 # 放行已建立的连接及相关包
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 # 允许所有人访问本机 TCP 80
