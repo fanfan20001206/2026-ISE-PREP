@@ -2131,31 +2131,21 @@ flowchart LR
 | `cmd` | 命令提示符 | 基础运维 |
 | `powershell` | PowerShell | 自动化与安全脚本 |
 
-# Windows 网络安全常用命令速查
-
-> 适用：Windows 10 / 11 / Server，部分命令需**管理员权限**。
-> 用途：应急响应、日志排查、网络诊断、权限审计、安全加固。
-
 ---
 
-## 一、网络连接与端口排查
+### 🌐 网络连接与端口排查
 
-| 命令 | 说明 | 示例 |
+> 🧠 **口诀**：`netstat` 看连接，`findstr` 筛可疑，`PID` 找进程
+
+| 🔧 命令 | 📖 说明 | 💡 示例 |
 |------|------|------|
 | `netstat -ano` | 查看所有连接及对应 PID | `netstat -ano \| findstr ESTABLISHED` |
-| `netstat -anob` | 查看连接 + 进程名（需管理员） | `netstat -anob` |
-| `netstat -ano \| findstr :3389` | 查指定端口占用 | 查 445/3389/22 等 |
-| `Get-NetTCPConnection` | PowerShell 查看 TCP 连接 | `Get-NetTCPConnection -State Listen` |
-| `Get-NetUDPEndpoint` | 查看 UDP 端点 | `Get-NetUDPEndpoint` |
-| `Test-NetConnection` | 端口连通性测试 | `Test-NetConnection 10.0.0.1 -Port 445` |
-| `telnet IP 端口` | 测试端口开放 | `telnet 192.168.1.1 80` |
 | `curl -I URL` | HTTP 头探测 | `curl -I https://example.com` |
 | `arp -a` | 查看 ARP 缓存（找中间人） | `arp -a` |
 | `route print` | 查看路由表（找异常路由） | `route print` |
 | `tracert -d IP` | 路由追踪（不解析 DNS） | `tracert -d 8.8.8.8` |
-| `pathping IP` | 路径 + 丢包统计 | `pathping 8.8.8.8` |
 
-### 排查可疑外联
+🔍 **排查可疑外联**：
 
     :: 列出所有 ESTABLISHED 连接及 PID
     netstat -ano | findstr ESTABLISHED
@@ -2163,43 +2153,13 @@ flowchart LR
     :: 根据 PID 找进程名
     tasklist /FI "PID eq 1234"
 
-    :: PowerShell 一步到位：连接 + 进程
-    Get-NetTCPConnection -State Established |
-      Select-Object LocalAddress,RemoteAddress,RemotePort,OwningProcess,
-      @{n='Process';e={(Get-Process -Id $_.OwningProcess).Name}}
-
 ---
 
-## 二、进程与服务审计
+### 👤 账号与权限审计
 
-| 命令 | 说明 | 示例 |
-|------|------|------|
-| `tasklist /svc` | 进程对应服务 | `tasklist /svc` |
-| `tasklist /m` | 进程加载的 DLL | `tasklist /m /fi "imagename eq svchost.exe"` |
-| `wmic process get name,processid,executablepath` | 进程路径 | 找伪装进程 |
-| `wmic process where "name='xxx.exe'" get commandline` | 查看命令行 | 排查恶意参数 |
-| `Get-CimInstance Win32_Process` | 进程命令行 | `Get-CimInstance Win32_Process \| Select Name,CommandLine` |
-| `taskkill /PID xxx /F` | 强制结束进程 | `taskkill /IM evil.exe /F` |
-| `sc query` | 查看服务状态 | `sc query type= service` |
-| `sc qc 服务名` | 查看服务配置（路径） | `sc qc Spooler` |
-| `Get-CimInstance Win32_Service` | 服务可执行路径 | 找可疑服务 |
-| `driverquery /v` | 驱动列表 | `driverquery /v` |
+> 🧠 **口诀**：`net user` 查账号，`localgroup` 看权限，`whoami` 验身份
 
-### 查可疑服务与自启
-
-    :: 服务启动类型 + 路径
-    wmic service get Name,DisplayName,StartMode,PathName
-
-    :: PowerShell：非微软签名的运行中服务
-    Get-CimInstance Win32_Service | Where-Object {
-      $_.State -eq 'Running' -and $_.PathName -notlike '*Windows*'
-    } | Select Name,PathName,StartMode
-
----
-
-## 三、账号与权限审计
-
-| 命令 | 说明 | 示例 |
+| 🔧 命令 | 📖 说明 | 💡 示例 |
 |------|------|------|
 | `net user` | 列出本机用户 | `net user` |
 | `net user 用户名` | 查看用户详情 | `net user administrator` |
@@ -2207,11 +2167,8 @@ flowchart LR
 | `whoami /all` | 当前用户全部权限 | `whoami /all` |
 | `whoami /priv` | 当前令牌权限 | 查 SeDebugPrivilege |
 | `query user` | 在线用户会话 | `query user` |
-| `logoff ID` | 注销会话 | `logoff 2` |
-| `Get-LocalUser` | PowerShell 用户 | `Get-LocalUser` |
-| `Get-LocalGroupMember administrators` | 管理员成员 | `Get-LocalGroupMember administrators` |
 
-### 排查异常账号
+🔍 **排查异常账号**：
 
     :: 查看所有用户
     net user
@@ -2224,18 +2181,20 @@ flowchart LR
 
 ---
 
-## 四、日志与事件审计
+### 📜 日志与事件审计
 
-| 命令 | 说明 | 示例 |
+> 🧠 **口诀**：`wevtutil` 查日志，`Get-WinEvent` 更强大，事件 ID 要记牢
+
+| 🔧 命令 | 📖 说明 | 💡 示例 |
 |------|------|------|
 | `wevtutil qe` | 查询事件日志 | `wevtutil qe Security /c:20 /rd:true /f:text` |
 | `wevtutil el` | 列出所有日志 | `wevtutil el` |
 | `Get-WinEvent` | PowerShell 查事件 | 见下方示例 |
 | `auditpol /get /category:*` | 查看审计策略 | `auditpol /get /category:*` |
 
-### 常见安全事件 ID
+📌 **常见安全事件 ID**：
 
-| Event ID | 含义 |
+| 🆔 Event ID | 📖 含义 |
 |----------|------|
 | 4624 | 登录成功 |
 | 4625 | 登录失败（爆破排查） |
@@ -2249,115 +2208,38 @@ flowchart LR
 | 7045 | 安装新服务（重点） |
 | 5156 | WFP 允许连接 |
 
-### PowerShell 查询示例
-
-    # 最近 20 条登录失败
-    Get-WinEvent -FilterHashtable @{LogName='Security';Id=4625} -MaxEvents 20
-
-    # 新安装的服务（排查持久化）
-    Get-WinEvent -FilterHashtable @{LogName='System';Id=7045} -MaxEvents 20
-
-    # 进程创建（需开启审核）
-    Get-WinEvent -FilterHashtable @{LogName='Security';Id=4688} -MaxEvents 50 |
-      Select TimeCreated,Message
-
-    # 日志被清空
-    Get-WinEvent -FilterHashtable @{LogName='Security';Id=1102}
-
 ---
 
-## 五、防火墙与网络策略
+### 📂 共享与 SMB 安全
 
-| 命令 | 说明 | 示例 |
-|------|------|------|
-| `netsh advfirewall show allprofiles` | 查看防火墙状态 | 三配置文件状态 |
-| `netsh advfirewall firewall show rule name=all` | 查看所有规则 | 排查放行规则 |
-| `netsh advfirewall set allprofiles state on` | 开启防火墙 | 加固 |
-| `netsh advfirewall firewall add rule` | 添加规则 | `... name="Block445" dir=in action=block protocol=TCP localport=445` |
-| `netsh advfirewall firewall delete rule` | 删除规则 | `... name="Block445"` |
-| `Get-NetFirewallRule` | PowerShell 规则 | `Get-NetFirewallRule -Enabled True` |
-| `New-NetFirewallRule` | 新建规则 | `New-NetFirewallRule -DisplayName "BlockRDP" -Direction Inbound -LocalPort 3389 -Protocol TCP -Action Block` |
+> 🧠 **口诀**：`net share` 看共享，SMBv1 必须关，永恒之蓝不再来
 
-### 常用加固示例
-
-    :: 关闭高危端口入站（445/135/139/3389）
-    netsh advfirewall firewall add rule name="Block SMB" dir=in action=block protocol=TCP localport=445
-    netsh advfirewall firewall add rule name="Block RDP" dir=in action=block protocol=TCP localport=3389
-
-    :: 查看已放行的高危规则
-    netsh advfirewall firewall show rule name=all | findstr /i "3389 445 135 139"
-
----
-
-## 六、共享与 SMB 安全
-
-| 命令 | 说明 | 示例 |
+| 🔧 命令 | 📖 说明 | 💡 示例 |
 |------|------|------|
 | `net share` | 查看共享 | `net share` |
 | `net share 名称 /delete` | 删除共享 | `net share temp$ /delete` |
 | `net session` | 当前会话 | `net session` |
 | `net use` | 已映射连接 | `net use` |
-| `Get-SmbShare` | PowerShell 共享 | `Get-SmbShare` |
-| `Get-SmbSession` | SMB 会话 | `Get-SmbSession` |
-| `Get-SmbServerConfiguration` | SMB 配置 | 查 SMBv1 状态 |
-
-### 关闭 SMBv1（永恒之蓝防护）
-
-    # 查看 SMBv1 状态
-    Get-SmbServerConfiguration | Select EnableSMB1Protocol
-
-    # 关闭 SMBv1
-    Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
-
-    # 关闭 SMBv1 客户端
-    Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart
 
 ---
 
-## 七、持久化排查
+### 🔑 凭据与密码安全
 
-### 常见持久化位置
+> 🧠 **口诀**：`cmdkey` 查凭据，`net accounts` 管策略，防爆破要锁定
 
-    :: 启动项
-    reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Run
-    reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run
-    reg query HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce
-
-    :: 计划任务
-    schtasks /query /fo LIST /v
-
-    :: 启动文件夹
-    dir "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
-    dir "%ProgramData%\Microsoft\Windows\Start Menu\Programs\Startup"
-
-    :: WMI 事件订阅（高级持久化）
-    Get-WmiObject -Namespace root\subscription -Class __EventFilter
-    Get-WmiObject -Namespace root\subscription -Class CommandLineEventConsumer
-
----
-
-## 八、凭据与密码安全
-
-| 命令 | 说明 | 示例 |
+| 🔧 命令 | 📖 说明 | 💡 示例 |
 |------|------|------|
 | `cmdkey /list` | 查看保存的凭据 | 排查明文凭据 |
 | `cmdkey /delete:目标` | 删除凭据 | `cmdkey /delete:192.168.1.1` |
 | `net accounts` | 密码策略 | `net accounts` |
-| `net accounts /minpwlen:12` | 设置最小长度 | 加固 |
-| `net accounts /lockoutthreshold:5` | 锁定阈值 | 防爆破 |
-| `vaultcmd /list` | 凭据管理器 | `vaultcmd /list` |
-| `runas /user:xxx cmd` | 切换用户运行 | 最小权限 |
-
-### 密码策略加固示例
-
-    net accounts /minpwlen:12 /maxpwage:90 /minpwage:1 /uniquepw:5
-    net accounts /lockoutthreshold:5 /lockoutduration:15 /lockoutwindow:15
 
 ---
 
-## 九、哈希与文件校验
+### #️⃣ 哈希与文件校验
 
-| 命令 | 说明 | 示例 |
+> 🧠 **口诀**：`certutil` 算哈希，`Get-FileHash` 更现代，签名验证靠 `sigcheck`
+
+| 🔧 命令 | 📖 说明 | 💡 示例 |
 |------|------|------|
 | `certutil -hashfile 文件 MD5` | MD5 | `certutil -hashfile evil.exe MD5` |
 | `certutil -hashfile 文件 SHA256` | SHA256 | 推荐 |
@@ -2365,113 +2247,11 @@ flowchart LR
 | `sigcheck -a 文件` | 签名验证（Sysinternals） | 查数字签名 |
 | `Get-AuthenticodeSignature` | 签名验证 | `Get-AuthenticodeSignature .\a.exe` |
 
-### 批量校验
-
-    # 计算目录下所有 exe 的 SHA256
-    Get-ChildItem -Recurse -Include *.exe,*.dll |
-      Get-FileHash -Algorithm SHA256 |
-      Export-Csv hashes.csv -NoTypeInformation
-
 ---
 
-## 十、远程与横向排查
+### ⚡ 速查 Top 20
 
-| 命令 | 说明 | 示例 |
-|------|------|------|
-| `qwinsta` | 查看会话 | `qwinsta` |
-| `query session` | 会话列表 | `query session` |
-| `net view \\IP` | 查看远程共享 | 横向排查 |
-| `wmic /node:IP process list` | 远程进程 | 需凭据 |
-| `winrs -r:IP cmd` | 远程命令 | 需 WinRM |
-| `Enter-PSSession` | PowerShell 远程 | `Enter-PSSession -ComputerName IP` |
-
-### RDP 相关
-
-    :: 查看 RDP 是否开启
-    reg query "HKLM\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections
-
-    :: 查看 RDP 端口
-    reg query "HKLM\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" /v PortNumber
-
-    :: 查看 RDP 登录记录（事件）
-    Get-WinEvent -FilterHashtable @{LogName='Security';Id=4624} |
-      Where-Object {$_.Message -like '*RemoteInteractive*'}
-
----
-
-## 十一、攻击面与漏洞排查
-
-    :: 系统补丁
-    wmic qfe list brief
-    Get-HotFix
-
-    :: 已安装软件
-    wmic product get name,version
-    Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* |
-      Select DisplayName,DisplayVersion
-
-    :: 开放端口
-    netstat -ano | findstr LISTENING
-
-    :: 计划任务
-    schtasks /query /fo LIST /v
-
-    :: 已加载模块（找注入 DLL）
-    tasklist /m
-
----
-
-## 十二、应急响应常用组合拳
-
-    # 1. 网络连接 + 进程
-    Get-NetTCPConnection -State Established |
-      Select LocalAddress,RemoteAddress,RemotePort,OwningProcess,
-      @{n='Proc';e={(Get-Process -Id $_.OwningProcess).Name}}
-
-    # 2. 异常进程（无签名 / 路径可疑）
-    Get-Process | Where-Object {
-      $_.Path -notlike '*Windows*' -and $_.Path -ne $null
-    } | Select Name,Id,Path
-
-    # 3. 最近创建的服务
-    Get-WinEvent -FilterHashtable @{LogName='System';Id=7045} -MaxEvents 10
-
-    # 4. 最近登录失败
-    Get-WinEvent -FilterHashtable @{LogName='Security';Id=4625} -MaxEvents 20
-
-    # 5. 启动项
-    Get-CimInstance Win32_StartupCommand | Select Name,Command,Location,User
-
-    # 6. 计划任务
-    Get-ScheduledTask | Where State -ne Disabled | Select TaskName,TaskPath
-
-    # 7. 本地管理员
-    Get-LocalGroupMember administrators
-
-    # 8. 共享
-    Get-SmbShare
-
----
-
-## 十三、Sysinternals 安全工具
-
-| 工具 | 用途 |
-|------|------|
-| `Autoruns` | 全面持久化排查 |
-| `Process Explorer` | 进程树/句柄/DLL |
-| `Process Monitor` | 实时文件/注册表/网络监控 |
-| `TCPView` | 连接可视化 |
-| `Sigcheck` | 签名验证 |
-| `Sysmon` | 高级日志（推荐部署） |
-| `Strings` | 提取二进制字符串 |
-| `AccessChk` | 权限检查 |
-
-    :: Sysmon 安装
-    sysmon.exe -accepteula -i sysmonconfig.xml
-
----
-
-## 十四、速查 Top 20（安全版）
+> 🧠 **口诀**：连、进、服、账、权、日、防、共、凭、任、启、哈
 
     netstat -ano                     连接与 PID
     tasklist /svc                    进程与服务
@@ -2496,20 +2276,22 @@ flowchart LR
 
 ---
 
-## 十五、加固清单（Checklist）
+### ✅ 加固清单
 
-- [ ] 开启防火墙三配置文件：`netsh advfirewall set allprofiles state on`
-- [ ] 关闭 SMBv1：`Set-SmbServerConfiguration -EnableSMB1Protocol $false`
-- [ ] 关闭不必要共享：`net share xxx /delete`
-- [ ] 禁用 Guest：`net user guest /active:no`
-- [ ] 设置密码策略：`net accounts /minpwlen:12 /lockoutthreshold:5`
-- [ ] 限制管理员组：`net localgroup administrators`
-- [ ] 开启审核策略：`auditpol /set /category:* /success:enable /failure:enable`
-- [ ] 部署 Sysmon + 日志集中
-- [ ] 定期 `Get-HotFix` 检查补丁
-- [ ] 关闭高危端口入站（445/135/139/3389）
-- [ ] 开启 PowerShell 日志（ScriptBlock Logging）
-- [ ] 定期检查计划任务与启动项
+> 🧠 **口诀**：防火墙开、SMB 关、共享删、Guest 禁、密码强、审核启、补丁打、端口封
+
+- [ ] 🧱 开启防火墙三配置文件：`netsh advfirewall set allprofiles state on`
+- [ ] 🚫 关闭 SMBv1：`Set-SmbServerConfiguration -EnableSMB1Protocol $false`
+- [ ] 📂 关闭不必要共享：`net share xxx /delete`
+- [ ] 👤 禁用 Guest：`net user guest /active:no`
+- [ ] 🔑 设置密码策略：`net accounts /minpwlen:12 /lockoutthreshold:5`
+- [ ] 🛡️ 限制管理员组：`net localgroup administrators`
+- [ ] 📜 开启审核策略：`auditpol /set /category:* /success:enable /failure:enable`
+- [ ] 🧰 部署 Sysmon + 日志集中
+- [ ] 🔄 定期 `Get-HotFix` 检查补丁
+- [ ] 🔒 关闭高危端口入站（445/135/139/3389）
+- [ ] 📝 开启 PowerShell 日志（ScriptBlock Logging）
+- [ ] 🔍 定期检查计划任务与启动项
 
 ---
 
