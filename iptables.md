@@ -115,6 +115,14 @@ iptables [-t 表] 操作命令 链名 匹配条件 -j 目标动作
 ## ⚡ 5. 常用规则速记
 
 ```bash
+# 默认拒绝
+iptables -t filter -P INPUT -j DROP
+iptables -t filter -P OUTPUT -j DROP
+iptables -t filter -P FORWARD -j DROP
+# 拒绝IP地址为192.168.0.2的远程主机登录到该服务器SSH
+iptables -t filter -A INPUT -p tcp -s 192.168.0.2 --dport 22 -j REJECT
+# 允许IP为10.0.0.2的地址访问本机的22端口
+iptables -t filter -A INPUT -p tcp -s 10.0.0.2 --dport 22 -j ACCEPT
 # 放行已建立的连接及相关包
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 # 允许所有人访问本机 TCP 80
@@ -206,6 +214,8 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 | `-F` | 只清规则，不改默认策略 |
 | `-I` 与 `-A` | `-I` 默认插到最前，`-A` 追加到末尾，顺序不同结果不同 |
 | 持久化 | 命令行写入重启即失效，用 `iptables-save > /etc/iptables/rules.v4` 保存 |
+| 黑名单策略：链的默认策略设置为 ACCEPT，在链中配置规则时，对应的动作设置为 DROP 或 REJECT。
+| 白名单策略：链的默认策略为 DROP，链中的规则对应的动作应该为 ACCEPT，表示只有匹配到规则的报文才会被放行，没有被规则匹配到的报文都会被默认拒绝。
 
 ---
 
