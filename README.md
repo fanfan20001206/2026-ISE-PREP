@@ -2780,6 +2780,16 @@ flowchart TD
 | Elasticsearch | 9200 | 搜索服务，易未授权访问 |
 | Memcached | 11211 | 缓存，易被反射攻击 |
 
+### A.5 TCP/IP 五层模型与常见协议端口
+
+| 层级 | 名称 | 数据单元 | 核心功能 | 常见协议（端口） |
+|------|------|---------|---------|----------------|
+| 5 | 应用层 | 报文/数据 | 为用户提供网络服务 | HTTP(80)、HTTPS(443)、FTP(21)、SMTP(25)、POP3(110)、IMAP(143)、DNS(53)、Telnet(23)、DHCP(67)、TFTP(69)、SNMP(161)、SLP、NTP、RADIUS、BOOTP |
+| 4 | 传输层 | 段（TCP）/ 数据报（UDP） | 端到端通信、可靠或不可靠传输 | TCP(6)、UDP(17)、TALI、DVMRP、Mobile IP、SSL/TLS |
+| 3 | 网络层 | 包（Packet） | 逻辑寻址与路由选择 | IP、ICMP(1)、IGMP(2)、RSVP(46)、ESP(50)、AH(51)、X.25(93)、BGP(179)、HSRP(1985)、RIP/RIPng(520/521)、OSPF(89)、IS-IS(124)、EGP(8)、VRRP(112)、IGRP(9)、EIGRP(88) |
+| 2 | 数据链路层 | 帧（Frame） | 物理寻址、差错检测 | MPLS、HDLC、SDLC、PPP、PPPOE、L2F、L2TP、PPTP、LACP(802.3ad)、ISL、ARP、RARP、ATM、IEEE 802.1 / 802.11 / 802.3 |
+| 1 | 物理层 | 比特（Bit） | 传输原始比特流 | 专线 E1/E3、T1/T3、PSTN、ISDN、X.25、宽带 Ether、ADSL、EPON、SDH、RPR、MSTP、GPRS、3G、4G、IEEE 802.11b/g/n/a/ac、IEEE 802.3ab/ae/an/ba、IEEE 802.3z/u、IEEE 802.15、IEEE 802.16 |
+
 ---
 
 <a name="附录-b复习清单"></a>
