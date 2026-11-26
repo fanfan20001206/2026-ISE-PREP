@@ -1,5 +1,8 @@
 <div align="center">
 
+<img width="1209" height="236" alt="image" src="https://github.com/user-attachments/assets/c1169fa7-3570-4b9c-af10-9aa5068cdd6f" />
+
+
 # 一定记住！！！
 
 # ⚠️⚠️⚠️ 不要刷模拟题 ⚠️⚠️⚠️
